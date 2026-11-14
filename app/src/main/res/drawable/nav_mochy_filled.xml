@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- the lit settings tab, filled.svg with its black face cut out so the bar's tint keeps it see-through -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="135.16"
+    android:viewportHeight="135.16">
+    <group
+        android:translateX="-55.67"
+        android:translateY="-50.42">
+        <path
+            android:fillColor="#FFFFFF"
+            android:fillType="evenOdd"
+            android:pathData="M167.25 89.854Q175.118 94.397 179.435 102.186Q183.5 109.52 183.5 118Q183.5 126.48 179.435 133.814Q175.118 141.603 167.25 146.146L111.75 178.189Q103.882 182.731 94.978 182.576Q86.594 182.429 79.25 178.189Q71.906 173.949 67.587 166.761Q63 159.128 63 150.043V85.957Q63 76.872 67.587 69.239Q71.906 62.051 79.25 57.811Q86.594 53.571 94.978 53.425Q103.882 53.269 111.75 57.811L167.25 89.854ZM96.5 100A5.5 5.5 0 0 1 107.5 100V136A5.5 5.5 0 0 1 96.5 136Z M118.5 108A5.5 5.5 0 0 1 129.5 108V128A5.5 5.5 0 0 1 118.5 128Z" />
+    </group>
+</vector>
