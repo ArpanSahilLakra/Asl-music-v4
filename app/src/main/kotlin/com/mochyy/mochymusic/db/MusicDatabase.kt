@@ -16,11 +16,16 @@ import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
+import com.mochyy.mochymusic.db.daos.AiStudioDao
 import com.mochyy.mochymusic.db.daos.SpeedDialDao
+import com.mochyy.mochymusic.db.entities.AiChatMessageEntity
 import com.mochyy.mochymusic.db.entities.AlbumArtistMap
 import com.mochyy.mochymusic.db.entities.AlbumEntity
 import com.mochyy.mochymusic.db.entities.ArtistEntity
+import com.mochyy.mochymusic.db.entities.CustomVisualizerPresetEntity
 import com.mochyy.mochymusic.db.entities.Event
+import com.mochyy.mochymusic.db.entities.MusicAlarmEntity
+import com.mochyy.mochymusic.db.entities.SavedLyricPassageEntity
 import com.mochyy.mochymusic.db.entities.FormatEntity
 import com.mochyy.mochymusic.db.entities.LyricsEntity
 import com.mochyy.mochymusic.db.entities.PlayCountEntity
@@ -55,6 +60,9 @@ class MusicDatabase(
 ) : DatabaseDao by delegate.dao {
     val speedDialDao: SpeedDialDao
         get() = delegate.speedDialDao
+
+    val aiStudioDao: AiStudioDao
+        get() = delegate.aiStudioDao
 
     /**
      * Pins [item], evicting the oldest pin first if that would push the count past
@@ -106,7 +114,7 @@ class MusicDatabase(
 }
 
 // bump this with every schema change and add its migration to AllMigrations, the import checks old exports against it too
-const val MusicDatabaseVersion = 42
+const val MusicDatabaseVersion = 43
 
 @Database(
     entities = [
@@ -133,6 +141,10 @@ const val MusicDatabaseVersion = 42
         ImportSessionSong::class,
         ImportedPlaylist::class,
         ImportedPlaylistTrack::class,
+        AiChatMessageEntity::class,
+        SavedLyricPassageEntity::class,
+        MusicAlarmEntity::class,
+        CustomVisualizerPresetEntity::class,
     ],
     views = [
         SortedSongArtistMap::class,
@@ -146,6 +158,7 @@ const val MusicDatabaseVersion = 42
 abstract class InternalDatabase : RoomDatabase() {
     abstract val dao: DatabaseDao
     abstract val speedDialDao: SpeedDialDao
+    abstract val aiStudioDao: AiStudioDao
 
     companion object {
         const val DB_NAME = "mochy.db"
@@ -207,6 +220,7 @@ val AllMigrations: Array<Migration>
         MIGRATION_39_40,
         MIGRATION_40_41,
         MIGRATION_41_42,
+        MIGRATION_42_43,
     )
 
 val MIGRATION_1_2 =
@@ -877,5 +891,65 @@ val MIGRATION_41_42 =
                     "AND (`likedDate` IS NULL OR ABS(`likedDate` - `inLibrary`) < 5000 " +
                     "OR `id` IN (SELECT `songId` FROM `imported_song` WHERE `source` = 'youtube_music'))",
             )
+        }
+    }
+
+val MIGRATION_42_43 =
+    object : Migration(42, 43) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                "CREATE TABLE IF NOT EXISTS `ai_chat_message` (" +
+                    "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                    "`role` TEXT NOT NULL, " +
+                    "`content` TEXT NOT NULL, " +
+                    "`actionSummary` TEXT, " +
+                    "`createdAt` INTEGER NOT NULL" +
+                    ")"
+            )
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_ai_chat_message_createdAt` ON `ai_chat_message` (`createdAt`)")
+
+            db.execSQL(
+                "CREATE TABLE IF NOT EXISTS `saved_lyric_passage` (" +
+                    "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                    "`songId` TEXT NOT NULL, " +
+                    "`songTitle` TEXT NOT NULL, " +
+                    "`artistName` TEXT NOT NULL, " +
+                    "`passageText` TEXT NOT NULL, " +
+                    "`note` TEXT, " +
+                    "`savedAt` INTEGER NOT NULL" +
+                    ")"
+            )
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_saved_lyric_passage_songId` ON `saved_lyric_passage` (`songId`)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_saved_lyric_passage_savedAt` ON `saved_lyric_passage` (`savedAt`)")
+
+            db.execSQL(
+                "CREATE TABLE IF NOT EXISTS `music_alarm` (" +
+                    "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                    "`label` TEXT NOT NULL, " +
+                    "`hour` INTEGER NOT NULL, " +
+                    "`minute` INTEGER NOT NULL, " +
+                    "`enabled` INTEGER NOT NULL, " +
+                    "`repeatDaysMask` INTEGER NOT NULL, " +
+                    "`targetSongId` TEXT, " +
+                    "`targetPlaylistId` TEXT, " +
+                    "`fadeInSeconds` INTEGER NOT NULL" +
+                    ")"
+            )
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_music_alarm_enabled` ON `music_alarm` (`enabled`)")
+
+            db.execSQL(
+                "CREATE TABLE IF NOT EXISTS `custom_visualizer_preset` (" +
+                    "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                    "`name` TEXT NOT NULL, " +
+                    "`mode` TEXT NOT NULL, " +
+                    "`sensitivity` REAL NOT NULL, " +
+                    "`glowIntensity` REAL NOT NULL, " +
+                    "`albumReactiveLighting` INTEGER NOT NULL, " +
+                    "`batterySaverFps` INTEGER NOT NULL, " +
+                    "`accentArgb` INTEGER NOT NULL, " +
+                    "`createdAt` INTEGER NOT NULL" +
+                    ")"
+            )
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_custom_visualizer_preset_createdAt` ON `custom_visualizer_preset` (`createdAt`)")
         }
     }

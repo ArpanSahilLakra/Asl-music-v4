@@ -125,6 +125,7 @@ fun PlayerActionMenu(
     var showLyricsOffset by remember { mutableStateOf(false) }
     var showSkinCustomise by remember { mutableStateOf(false) }
     var showAslPulseSync by remember { mutableStateOf(false) }
+    var showAiSongInsights by remember { mutableStateOf(false) }
 
     // Only touched by the lyrics section. hiltViewModel() itself is cheap, but the flows are
     // collected lazily so a menu opened from the player does no lyrics work at all.
@@ -201,12 +202,9 @@ fun PlayerActionMenu(
                     SheetActionCardRow {
                         SheetActionCard(
                             icon = R.drawable.translate,
-                            title = "Ai translation",
-                            // Greyed out until the AI translation settings are filled in — an
-                            // enabled button that silently does nothing is worse than a disabled
-                            // one that says so.
-                            enabled = false,
-                            onClick = {},
+                            title = "AI Song Insights",
+                            enabled = currentMetadata != null,
+                            onClick = { showAiSongInsights = true },
                             modifier = Modifier.weight(1f),
                         )
                         SheetActionCard(
@@ -386,6 +384,54 @@ fun PlayerActionMenu(
                 Spacer(modifier = Modifier.height(SectionGap))
 
                 MenuRow(
+                    icon = R.drawable.translate,
+                    title = "AI Song Insights & Karaoke",
+                    enabled = currentMetadata != null,
+                    onClick = { showAiSongInsights = true },
+                )
+
+                if (onOpenRoute != null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    MenuRow(
+                        icon = R.drawable.graphic_eq,
+                        title = "3D Visualizer Studio",
+                        onClick = {
+                            onDismiss()
+                            onOpenRoute("visualizer_studio")
+                        },
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    MenuRow(
+                        icon = R.drawable.music_note,
+                        title = "Ask ASL Beats AI",
+                        onClick = {
+                            onDismiss()
+                            onOpenRoute("ai_assistant")
+                        },
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    MenuRow(
+                        icon = R.drawable.tune,
+                        title = "AI Audio Mastering",
+                        onClick = {
+                            onDismiss()
+                            onOpenRoute("ai_mastering")
+                        },
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    MenuRow(
+                        icon = R.drawable.discover_tune,
+                        title = "AI DJ Deck & CrossMix",
+                        onClick = {
+                            onDismiss()
+                            onOpenRoute("ai_dj_mode")
+                        },
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                MenuRow(
                     icon = R.drawable.equalizer,
                     title = "ASL Pulse Sync & RMX5106 Tuning",
                     onClick = { showAslPulseSync = true },
@@ -448,6 +494,17 @@ fun PlayerActionMenu(
     if (showAslPulseSync) {
         com.mochyy.mochymusic.ui.player.pulse.AslPulseSyncSheet(
             onDismiss = { showAslPulseSync = false }
+        )
+    }
+    if (showAiSongInsights) {
+        com.mochyy.mochymusic.ui.player.AiSongExplanationSheet(
+            onDismiss = { showAiSongInsights = false },
+            onOpenSavedPassages = onOpenRoute?.let { openRoute ->
+                {
+                    onDismiss()
+                    openRoute("saved_lyrics")
+                }
+            },
         )
     }
     }

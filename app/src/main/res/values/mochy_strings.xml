@@ -341,13 +341,7 @@
     <string name="settings_section_player_content">Player &amp; Content</string>
     <string name="settings_section_storage">Storage &amp; Data</string>
     <string name="settings_section_system">System &amp; About</string>
-
-    <!-- Updater -->
-    <string name="updater">Updater</string>
-    <string name="check_for_updates">Automatically check for updates</string>
-    <string name="update_available_title">Update available</string>
-    <string name="update_channel_name">App updates</string>
-    <string name="update_channel_desc">Notifications about new versions</string>
+    <string name="back_content_desc">Back</string>
 
     <!-- Offload -->
     <string name="audio_offload">Enable offload</string>
@@ -888,16 +882,8 @@
     <string name="song_info_likes_count">%s likes</string>
     <string name="song_info_no_description">No description available</string>
 
-<!--    changelog-->
-    <string name="error_loading_changelog">Error loading changelog</string>
-    <string name="no_old_releases_with_changelog">No old releases with changelog found</string>
-    <string name="failed_to_fetch_changelog">Failed to fetch changelog</string>
-    <string name="changelog_title">Changelog</string>
-    <string name="loading_changelog">Loading changelog…</string>
     <string name="cached">Cached</string>
     <string name="current">Current</string>
-    <string name="old_releases">Old Releases</string>
-    <string name="changelog_section">Changelog</string>
     <string name="version_code">Version code</string>
     <string name="namespace">Namespace</string>
     <string name="telegram_channel">Telegram</string>
@@ -914,9 +900,6 @@
     <string name="perm_notif_title">Notifications</string>
     <string name="perm_notif_desc">Know immediately when your music is playing and control it from the notification bar.</string>
 
-    <string name="perm_install_title">App Installation</string>
-    <string name="perm_install_desc">Required to download and install app updates seamlessly.</string>
-
     <string name="feat_discover">Discover</string>
     <string name="feat_features">Features</string>
     <string name="feat_intro">Explore everything ASL Beats has to offer for your music journey.</string>
@@ -930,22 +913,12 @@
     <string name="feat_quality_title">Premium Quality</string>
     <string name="feat_quality_desc">Stream and download.</string>
 
-    <string name="feat_update_title">Dynamic Updates</string>
-    <string name="feat_update_desc">Always stay updated with our built-in updater.</string>
-
     <string name="feat_license_title">License</string>
     <string name="feat_license_desc">General Public License v3.0</string>
     <string name="feat_github_title">GitHub</string>
     <string name="feat_github_desc">Open source project</string>
 
     <string name="join_telegram">Join our Telegram channel</string>
-    <string name="welcome_update_check">Stay</string>
-    <string name="welcome_update_status">Updated</string>
-    <string name="welcome_update_intro">Ensuring you have the latest features and security improvements.</string>
-    <string name="welcome_checking_updates">Checking for updates…</string>
-    <string name="welcome_up_to_date">ASL Beats is up to date!</string>
-    <string name="welcome_update_available">New version is available: %s</string>
-    <string name="welcome_everything_ready">Everything is now up to date</string>
     <string name="commits_title">Commits</string>
     <string name="error_loading_commits">Failed to load commits becoz you didnt pay me ?</string>
     <string name="commits">Commits</string>
@@ -955,11 +928,6 @@
     <string name="no_comments">No comments found</string>
     <string name="type_message">Type a message…</string>
     <string name="send">Send</string>
-    <string name="clear_downloaded_updates_auto_info">Dynamically it will be deleted after one day.</string>
-    <string name="update_info_badge">Info &amp; Tips</string>
-    <string name="update_info_title">Update Information</string>
-    <string name="manual_delete_hint_title">Manual Cleanup</string>
-    <string name="manual_delete_hint_desc">You can manually also delete. Deleting old apk will improve the updater to update properly.</string>
 
     <!-- Playback Log -->
     <string name="logs_heading">Logs</string>

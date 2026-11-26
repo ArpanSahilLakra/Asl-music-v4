@@ -49,8 +49,7 @@ import com.mochyy.mochymusic.link.tv.TvControl
 import com.mochyy.mochymusic.link.tv.TvProfile
 import com.mochyy.mochymusic.link.tv.TvProfiles
 import com.mochyy.mochymusic.ui.component.LocalZoomOutOverlayState
-import com.mochyy.mochymusic.ui.screens.update.rememberUpdateState
-import com.mochyy.mochymusic.ui.screens.update.showUpdateSheet
+import com.mochyy.mochymusic.ui.screens.about.showAboutSheet
 
 // one tile on the mochy page: a place to go, what it is, and a line on how it stands
 @Immutable
@@ -65,7 +64,6 @@ internal fun TvMochyScreen(profile: TvProfile) {
     val current = profiles.firstOrNull { it.id == profile.id } ?: profile
     val phoneControl by TvControl.allowed.collectAsState()
     val popup = LocalZoomOutOverlayState.current
-    val updateState by rememberUpdateState()
     val first = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { first.requestFocus() } }
 
@@ -84,8 +82,8 @@ internal fun TvMochyScreen(profile: TvProfile) {
             stringResource(if (phoneControl) R.string.tv_on else R.string.tv_off),
             R.drawable.sync,
         ) { TvControl.setAllowed(!phoneControl) },
-        TvMochyTile("updates", stringResource(R.string.tv_mochy_updates), stringResource(R.string.tv_mochy_version, BuildConfig.VERSION_NAME), R.drawable.sync, wide = true) {
-            popup.showUpdateSheet(updateState)
+        TvMochyTile("about", stringResource(R.string.about), stringResource(R.string.tv_mochy_version, BuildConfig.VERSION_NAME), R.drawable.info, wide = true) {
+            popup.showAboutSheet()
         },
     )
 

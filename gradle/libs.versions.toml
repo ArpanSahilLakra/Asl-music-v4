@@ -45,6 +45,7 @@ webkit = "1.12.1"
 robolectric = "4.16.1"
 secretsGradlePlugin = "2.0.1"
 googleServices = "4.5.0"
+firebaseBom = "35.2.0"
 
 [libraries]
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
@@ -120,6 +121,10 @@ lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "
 work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-webkit = { group = "androidx.webkit", name = "webkit", version.ref = "webkit" }
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-ai = { group = "com.google.firebase", name = "firebase-ai" }
+firebase-appcheck-recaptcha = { group = "com.google.firebase", name = "firebase-appcheck-recaptcha" }
+firebase-appcheck-debug = { group = "com.google.firebase", name = "firebase-appcheck-debug" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }

@@ -2910,6 +2910,94 @@ class MusicService :
         if (playWhenReady) {
             setupLoudnessEnhancer()
         }
+        updatePulseSyncTap(playWhenReady)
+    }
+
+    private var pulseSyncTapJob: Job? = null
+    private val pulseSpectrumBuffer = FloatArray(com.mochyy.mochymusic.playback.audio.AudioSpectrum.Bands)
+
+    private fun updatePulseSyncTap(active: Boolean) {
+        pulseSyncTapJob?.cancel()
+        pulseSyncTapJob = null
+        if (!active) {
+            com.mochyy.mochymusic.playback.pulse.AslPulseSyncEngine.onPlaybackFrame(
+                context = this,
+                enabled = false,
+                mode = com.mochyy.mochymusic.playback.pulse.AslPulseLightingMode.OFF,
+                userColorArgb = 0xFF6366F1.toInt(),
+                brightness = 0.8f,
+                sensitivity = 1.0f,
+                batterySaverOption = false,
+                pauseScreenOff = true,
+                isScreenInteractive = true,
+                isPlaying = false,
+                songId = currentMediaMetadata.value?.id,
+                positionMs = 0L,
+                bass = 0f,
+                mid = 0f,
+                treble = 0f,
+                artworkPalette = com.mochyy.mochymusic.ui.player.LivingArtworkPalette.Default,
+            )
+            return
+        }
+        pulseSyncTapJob = scope.launch(Dispatchers.Default) {
+            val powerManager = getSystemService(Context.POWER_SERVICE) as? android.os.PowerManager
+            while (isActive) {
+                val enabled = dataStore.get(com.mochyy.mochymusic.constants.AslPulseSyncEnabledKey, false)
+                if (!enabled) {
+                    delay(1_000L)
+                    continue
+                }
+                val isInteractive = powerManager?.isInteractive ?: true
+                val (playingNow, posMs, songId, spectrum) = withContext(Dispatchers.Main) {
+                    val p = player
+                    val meta = currentMediaMetadata.value
+                    arrayOf<Any?>(p.isPlaying, p.currentPosition, meta?.id, spectrumOf(p))
+                }
+                val isPlay = playingNow as Boolean
+                val position = posMs as Long
+                val id = songId as String?
+                val spec = spectrum as? com.mochyy.mochymusic.playback.audio.AudioSpectrum
+                var bass = 0f
+                var mid = 0f
+                var treble = 0f
+                if (isPlay && spec != null && spec.read(position, pulseSpectrumBuffer)) {
+                    for (i in 0 until 8) bass += pulseSpectrumBuffer[i]
+                    for (i in 8 until 24) mid += pulseSpectrumBuffer[i]
+                    for (i in 24 until pulseSpectrumBuffer.size) treble += pulseSpectrumBuffer[i]
+                    bass /= 8f
+                    mid /= 16f
+                    treble /= (pulseSpectrumBuffer.size - 24).toFloat()
+                }
+                val modeName = dataStore.get(com.mochyy.mochymusic.constants.AslPulseSyncModeKey, "BEAT_SYNC")
+                val mode = runCatching {
+                    com.mochyy.mochymusic.playback.pulse.AslPulseLightingMode.valueOf(modeName)
+                }.getOrDefault(com.mochyy.mochymusic.playback.pulse.AslPulseLightingMode.BEAT_SYNC)
+                val cachedPalette = com.mochyy.mochymusic.ui.player.LivingArtworkPaletteCache
+                    .getCached(currentMediaMetadata.value?.thumbnailUrl)
+                    ?: com.mochyy.mochymusic.ui.player.LivingArtworkPalette.Default
+
+                com.mochyy.mochymusic.playback.pulse.AslPulseSyncEngine.onPlaybackFrame(
+                    context = this@MusicService,
+                    enabled = true,
+                    mode = mode,
+                    userColorArgb = 0xFF6366F1.toInt(),
+                    brightness = 0.85f,
+                    sensitivity = 1.0f,
+                    batterySaverOption = false,
+                    pauseScreenOff = true,
+                    isScreenInteractive = isInteractive,
+                    isPlaying = isPlay,
+                    songId = id,
+                    positionMs = position,
+                    bass = bass,
+                    mid = mid,
+                    treble = treble,
+                    artworkPalette = cachedPalette,
+                )
+                delay(60L)
+            }
+        }
     }
 
     override fun onEvents(
@@ -4194,6 +4282,8 @@ class MusicService :
 
     override fun onDestroy() {
         isRunning = false
+        pulseSyncTapJob?.cancel()
+        pulseSyncTapJob = null
 
         audioManager.unregisterAudioDeviceCallback(audioDeviceCallback)
         audioOutputs.release()

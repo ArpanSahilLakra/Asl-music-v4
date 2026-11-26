@@ -166,16 +166,12 @@ import com.mochyy.mochymusic.ui.screens.recap.recapBarcodeCaption
 import com.mochyy.mochymusic.ui.screens.recap.recapBarcodePayload
 import com.mochyy.mochymusic.ui.screens.recap.recapDots
 import com.mochyy.mochymusic.ui.screens.recap.rememberRecapTime
-import com.mochyy.mochymusic.core.updater.DiscordUrl
 import com.mochyy.mochymusic.ui.screens.settings.devspace.DevAvatar
 import com.mochyy.mochymusic.ui.screens.settings.devspace.DevPeople
 import com.mochyy.mochymusic.ui.screens.settings.devspace.openDevUrl
 import com.mochyy.mochymusic.ui.screens.setup.onboarding.IdCardAspect
 import com.mochyy.mochymusic.ui.screens.setup.onboarding.ProfileIdCard
-import com.mochyy.mochymusic.ui.screens.update.UpdateHeadline
-import com.mochyy.mochymusic.ui.screens.update.rememberUpdateState
-import com.mochyy.mochymusic.ui.screens.update.showAboutSheet
-import com.mochyy.mochymusic.ui.screens.update.showUpdateSheet
+import com.mochyy.mochymusic.ui.screens.about.showAboutSheet
 import com.mochyy.mochymusic.ui.theme.InterFontFamily
 import com.mochyy.mochymusic.ui.utils.stableSystemBars
 import com.mochyy.mochymusic.utils.rememberPreference
@@ -229,7 +225,6 @@ fun ProfileScreen(navController: NavController) {
     val haptics = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
     val zoomOutState = LocalZoomOutOverlayState.current
-    val updateState by rememberUpdateState()
     val obscured = LocalAppContentObscured.current
     val windowHeight = LocalWindowInfo.current.containerSize.height.toFloat()
     val statusBarTop = WindowInsets.stableSystemBars.asPaddingValues().calculateTopPadding()
@@ -718,17 +713,11 @@ fun ProfileScreen(navController: NavController) {
                             zoomOutState.dismissAll()
                             navController.navigate("developer_space?person=$personIndex")
                         }
-                        val hasUpdate = updateState is com.mochyy.mochymusic.core.updater.UpdateState.Available
+                        val openAbout: () -> Unit = {
+                            zoomOutState.showAboutSheet(onOpenDevSpace = openDevSpace)
+                        }
                         VersionCard(
-                            updateHeadline = if (hasUpdate) UpdateHeadline else null,
-                            onCardClick = { zoomOutState.showUpdateSheet(updateState, onOpenDevSpace = openDevSpace) },
-                            onPillClick = {
-                                if (hasUpdate) {
-                                    zoomOutState.showUpdateSheet(updateState, onOpenDevSpace = openDevSpace)
-                                } else {
-                                    zoomOutState.showAboutSheet(onOpenDevSpace = openDevSpace)
-                                }
-                            },
+                            onAboutClick = openAbout,
                         )
                         Spacer(Modifier.height(16.dp))
                         DeveloperCard(onClick = { navController.navigate("developer_space") })
@@ -965,9 +954,7 @@ private fun TimeValue(value: String, unit: String, k: Float) {
 
 @Composable
 private fun VersionCard(
-    updateHeadline: String?,
-    onCardClick: () -> Unit,
-    onPillClick: () -> Unit,
+    onAboutClick: () -> Unit,
 ) {
     BoxWithConstraints {
         val k = widthScale(maxWidth.value)
@@ -977,7 +964,7 @@ private fun VersionCard(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(22.dp))
                 .background(PageCard)
-                .clickable(onClick = onCardClick)
+                .clickable(onClick = onAboutClick)
                 .padding(CardPadding),
         ) {
             Column(modifier = Modifier.weight(1f)) {
@@ -989,81 +976,29 @@ private fun VersionCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                if (updateHeadline != null) {
-                    Text(updateHeadline, style = TextStyle(fontFamily = InterFontFamily, fontSize = 12.sp, color = Color(0xFF88FF76)), maxLines = 2)
-                }
             }
             Spacer(Modifier.width(10.dp))
-            VersionCapsule(update = updateHeadline != null, onAbout = onPillClick)
+            VersionCapsule(onAbout = onAboutClick)
         }
     }
 }
 
-/**
- * The version card's capsule: "About app", or "Update" once one is out. The swap pops - the
- * capsule squashes and springs back past its size while the new word grows in on a bounce and
- * the width springs to fit it.
- */
 @Composable
-private fun VersionCapsule(update: Boolean, onAbout: () -> Unit) {
-    val shown = if (update) "Update" else "About app"
-
-    // the pop: a quick squash, then a spring that carries past full size and settles
-    val pop = remember { Animatable(1f) }
-    var popped by remember { mutableStateOf(false) }
-    LaunchedEffect(shown) {
-        // not on first showing - only when the label actually changes
-        if (!popped) {
-            popped = true
-            return@LaunchedEffect
-        }
-        pop.animateTo(0.86f, tween(durationMillis = 90, easing = FastOutSlowInEasing))
-        pop.animateTo(1f, spring(dampingRatio = 0.38f, stiffness = 520f))
-    }
-
+private fun VersionCapsule(onAbout: () -> Unit) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .graphicsLayer {
-                scaleX = pop.value
-                scaleY = pop.value
-            }
             .clip(CircleShape)
             .background(Color(0xFF4D4D4D))
             .clickable(onClick = onAbout)
             .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
-        AnimatedContent(
-            targetState = shown,
-            transitionSpec = {
-                // the new word grows in on a bounce as the old one shrinks away
-                val enter = scaleIn(
-                    animationSpec = spring(dampingRatio = 0.45f, stiffness = 420f),
-                    initialScale = 0.35f,
-                ) + fadeIn(tween(durationMillis = 160))
-                val exit = scaleOut(
-                    animationSpec = tween(durationMillis = 140, easing = FastOutSlowInEasing),
-                    targetScale = 0.35f,
-                ) + fadeOut(tween(durationMillis = 120))
-                // and the capsule's width springs to fit it, overshooting a touch
-                (enter togetherWith exit) using SizeTransform(clip = false) { _, _ ->
-                    spring(
-                        dampingRatio = 0.6f,
-                        stiffness = 380f,
-                        visibilityThreshold = IntSize.VisibilityThreshold,
-                    )
-                }
-            },
-            contentAlignment = Alignment.Center,
-            label = "versionCapsule",
-        ) { label ->
-            Text(
-                label,
-                style = TextStyle(fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = Color.White),
-                maxLines = 1,
-                softWrap = false,
-            )
-        }
+        Text(
+            "About app",
+            style = TextStyle(fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = Color.White),
+            maxLines = 1,
+            softWrap = false,
+        )
     }
 }
 

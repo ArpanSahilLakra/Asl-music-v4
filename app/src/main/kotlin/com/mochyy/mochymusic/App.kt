@@ -3,7 +3,6 @@
 package com.mochyy.mochymusic
 
 import android.app.Application
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.res.Configuration
@@ -169,15 +168,9 @@ class App : Application(), SingletonImageLoader.Factory {
         YouTube.ipVersion = settings[IpVersionKey]?.toEnum(defaultValue = IpVersion.AUTO) ?: IpVersion.AUTO
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                "updates",
-                getString(R.string.update_channel_name),
-                NotificationManager.IMPORTANCE_DEFAULT
-            ).apply {
-                description = getString(R.string.update_channel_desc)
-            }
             val nm = getSystemService(NotificationManager::class.java)
-            nm.createNotificationChannel(channel)
+            nm?.deleteNotificationChannel("updates")
+            nm?.deleteNotificationChannel("mochy_download_channel")
         }
     }
 

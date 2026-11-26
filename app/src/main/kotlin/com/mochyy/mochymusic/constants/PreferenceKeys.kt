@@ -409,8 +409,6 @@ val WrappedSeenKey = booleanPreferencesKey("wrapped_seen")
 val RandomizeHomeOrderKey = booleanPreferencesKey("randomizeHomeOrder")
 val AlbumCanvasEnabledKey = booleanPreferencesKey("albumCanvasEnabled")
 
-val UpdatePromptSnoozedAtKey = longPreferencesKey("update_prompt_snoozed_at")
-
 val ShowStreamSourceToastKey = booleanPreferencesKey("show_stream_source_toast")
 /** A song a source module or Monochrome can't play falls back to YouTube, and one nothing can play is skipped. */
 val ForcePlaybackKey = booleanPreferencesKey("forcePlayback")
@@ -1295,8 +1293,6 @@ val PlayerNavBarKey = booleanPreferencesKey("playerNavBar")
 const val PlayerNavBarDefault = false
 // settings rows show only their titles, holding a row still shows what it does
 val HideSettingsDescriptionsKey = booleanPreferencesKey("hideSettingsDescriptions")
-// no update popup on home and no update notification, the updater page still shows what's new when opened
-val HideUpdateNoticeKey = booleanPreferencesKey("hideUpdateNotice")
 val AudioQualityBadgeDevKey = booleanPreferencesKey("audioQualityBadgeDev")
 val YtVideoBackgroundLyricsSyncKey = booleanPreferencesKey("ytVideoBackgroundLyricsSync")
 val ForceYtBackdropBlur1500Key = booleanPreferencesKey("forceYtBackdropBlur1500")

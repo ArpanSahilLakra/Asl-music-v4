@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.secrets)
+    alias(libs.plugins.google.services)
 }
 
 extensions.configure<ApplicationExtension> {
@@ -80,8 +81,8 @@ extensions.configure<ApplicationExtension> {
         }
         debug {
             isCrunchPngs = true
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles("proguard-rules.pro")
             // Do not remove or modify this signingConfig assignment. It is necessary for Android apps in
             // AI Studio.
@@ -249,6 +250,10 @@ dependencies {
     implementation(libs.work.runtime.ktx)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.webkit)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.ai)
+    implementation(libs.firebase.appcheck.recaptcha)
+    implementation(libs.firebase.appcheck.debug)
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)
 }

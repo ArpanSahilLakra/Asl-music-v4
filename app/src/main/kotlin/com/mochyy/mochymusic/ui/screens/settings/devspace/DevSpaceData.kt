@@ -2,8 +2,8 @@
 
 package com.mochyy.mochymusic.ui.screens.settings.devspace
 
-import com.mochyy.mochymusic.core.updater.GithubOwner
-import com.mochyy.mochymusic.core.updater.GithubRepo
+import com.mochyy.mochymusic.constants.GithubOwner
+import com.mochyy.mochymusic.constants.GithubRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope

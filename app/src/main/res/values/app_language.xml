@@ -5,8 +5,6 @@
     <string name="app_language_incomplete">Some text may still be in English</string>
     <string name="app_language_update_failed">Could not change the app language. Please try again.</string>
     <string name="general_app_settings">General app settings</string>
-    <string name="settings_updates_notice">Disable app update notices</string>
-    <string name="settings_updates_notice_desc">No popup will appear unless you open the updater</string>
     <string name="settings_offline_mode">Offline mode</string>
     <string name="settings_offline_mode_desc">Play downloaded music only</string>
     <string name="settings_data_saver">Data saver</string>

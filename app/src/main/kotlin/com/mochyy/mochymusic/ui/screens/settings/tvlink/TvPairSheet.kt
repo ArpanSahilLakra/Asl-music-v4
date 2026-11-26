@@ -58,7 +58,7 @@ import com.mochyy.mochymusic.link.LinkWire
 import com.mochyy.mochymusic.ui.component.PopupSheetHandle
 import com.mochyy.mochymusic.ui.component.PopupSheetState
 import com.mochyy.mochymusic.ui.component.SheetLabel
-import com.mochyy.mochymusic.ui.screens.update.SheetPrimaryButton
+import com.mochyy.mochymusic.ui.screens.about.SheetPrimaryButton
 import com.mochyy.mochymusic.ui.theme.InterFontFamily
 
 private val BoxColor = Color(0xFF2A2A2E)

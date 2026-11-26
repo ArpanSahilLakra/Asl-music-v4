@@ -3,7 +3,7 @@
 package com.mochyy.mochymusic.discord
 
 import android.net.Uri
-import com.mochyy.mochymusic.core.updater.GithubRepoUrl
+import com.mochyy.mochymusic.constants.GithubRepoUrl
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray

@@ -42,8 +42,8 @@ import com.mochyy.mochymusic.R
 import com.mochyy.mochymusic.ui.component.PopupSheetState
 import com.mochyy.mochymusic.ui.component.pressBounce
 import com.mochyy.mochymusic.ui.player.menu.MenuRowSurface
-import com.mochyy.mochymusic.ui.screens.update.VersionRing
-import com.mochyy.mochymusic.ui.screens.update.openUrl
+import com.mochyy.mochymusic.ui.screens.about.VersionRing
+import com.mochyy.mochymusic.ui.screens.about.openUrl
 import com.mochyy.mochymusic.ui.component.RemoteFocus
 
 const val KofiUrl = "https://ko-fi.com/realidkroo"

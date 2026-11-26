@@ -69,3 +69,6 @@
 -dontwarn io.ktor.**
 -dontwarn androidx.window.extensions.**
 -dontwarn androidx.window.sidecar.**
+-keep class com.mochyy.mochymusic.ai.** { *; }
+-dontwarn com.google.firebase.**
+-dontwarn com.google.android.recaptcha.**

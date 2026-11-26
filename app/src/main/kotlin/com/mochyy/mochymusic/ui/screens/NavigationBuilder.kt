@@ -834,6 +834,61 @@ fun NavGraphBuilder.navigationBuilder(
     coverSourceComposable("library/artists") {
         com.mochyy.mochymusic.ui.screens.library.LibraryArtistsScreen(navController = navController)
     }
+
+    composable("ai_assistant") {
+        com.mochyy.mochymusic.ui.screens.ai.AiAssistantScreen(navController = navController)
+    }
+
+    composable(
+        route = "ai_mood_playlist?seed={seed}",
+        arguments = listOf(
+            navArgument("seed") {
+                type = NavType.StringType
+                nullable = true
+                defaultValue = null
+            }
+        ),
+    ) { backStackEntry ->
+        val seed = backStackEntry.arguments?.getString("seed")?.let {
+            runCatching { java.net.URLDecoder.decode(it, "UTF-8") }.getOrDefault(it)
+        }
+        com.mochyy.mochymusic.ui.screens.ai.MoodPlaylistScreen(
+            navController = navController,
+            seedQuery = seed,
+        )
+    }
+
+    composable("visualizer_studio") {
+        com.mochyy.mochymusic.ui.screens.visualizer.VisualizerStudioScreen(navController = navController)
+    }
+
+    composable("saved_lyrics") {
+        com.mochyy.mochymusic.ui.screens.ai.SavedLyricsScreen(navController = navController)
+    }
+
+    composable("ai_mastering") {
+        com.mochyy.mochymusic.ui.screens.ai.AiMasteringScreen(navController = navController)
+    }
+
+    composable("ai_insights") {
+        com.mochyy.mochymusic.ui.screens.ai.AiListeningInsightsScreen(navController = navController)
+    }
+
+    composable("music_alarms") {
+        com.mochyy.mochymusic.ui.screens.ai.MusicAlarmScreen(navController = navController)
+    }
+
+    composable("ai_dj_mode") {
+        com.mochyy.mochymusic.ui.screens.ai.AiDjModeScreen(navController = navController)
+    }
+
+    composable("screenshot_to_music") {
+        com.mochyy.mochymusic.ui.screens.ai.ScreenshotToMusicScreen(navController = navController)
+    }
+
+    composable("smart_library_hygiene") {
+        com.mochyy.mochymusic.ui.screens.ai.SmartLibraryHygieneScreen(navController = navController)
+    }
 }
 
 internal data class LocalAudioMetadata(

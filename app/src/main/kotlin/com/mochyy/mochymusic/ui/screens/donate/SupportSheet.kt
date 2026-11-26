@@ -25,10 +25,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mochyy.mochymusic.core.updater.GithubRepoUrl
+import com.mochyy.mochymusic.constants.GithubRepoUrl
 import com.mochyy.mochymusic.ui.component.PopupSheetHandleHeight
 import com.mochyy.mochymusic.ui.component.PopupSheetState
-import com.mochyy.mochymusic.ui.screens.update.openUrl
+import com.mochyy.mochymusic.ui.screens.about.openUrl
 
 // the band ends around her chest, above where her fade starts (56%), or the letters show through her
 private const val BandEndsOnCharacter = 0.53f

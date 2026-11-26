@@ -43,7 +43,6 @@ import com.mochyy.mochymusic.constants.DataSaverMobileOnlyKey
 import com.mochyy.mochymusic.constants.DisableVideoAutoplayKey
 import com.mochyy.mochymusic.constants.DontSkipOnFailureKey
 import com.mochyy.mochymusic.constants.HideSettingsDescriptionsKey
-import com.mochyy.mochymusic.constants.HideUpdateNoticeKey
 import com.mochyy.mochymusic.constants.LarpLevelKey
 import com.mochyy.mochymusic.constants.LarpModeKey
 import com.mochyy.mochymusic.constants.LocalSongAutoMetadataKey
@@ -69,7 +68,6 @@ import com.mochyy.mochymusic.constants.VideoQualityKey
 import com.mochyy.mochymusic.constants.YouTubeCaptionTranslationKey
 import com.mochyy.mochymusic.constants.YtReportPlaysKey
 import com.mochyy.mochymusic.constants.YtVideoBackgroundLyricsSyncKey
-import com.mochyy.mochymusic.core.updater.saveUpdateNotificationsSetting
 import com.mochyy.mochymusic.i18n.AppLanguage
 import com.mochyy.mochymusic.i18n.activityOrNull
 import com.mochyy.mochymusic.ui.component.AppSwitch
@@ -174,8 +172,6 @@ private fun larpItems(): List<SettingsItem> {
 
 @Composable
 private fun generalItems(navController: NavController): List<SettingsItem> {
-    val context = LocalContext.current
-    val (noticeHidden, onNoticeHidden) = rememberPreference(HideUpdateNoticeKey, defaultValue = false)
     val (offlineMode, onOfflineModeChange) = rememberPreference(OfflineModeKey, defaultValue = false)
     val (dataSaver, onDataSaverChange) = rememberPreference(DataSaverKey, defaultValue = false)
     val (dataSaverMobileOnly, onDataSaverMobileOnlyChange) = rememberPreference(DataSaverMobileOnlyKey, defaultValue = true)
@@ -185,21 +181,8 @@ private fun generalItems(navController: NavController): List<SettingsItem> {
     val (albumsFromLikes, onAlbumsFromLikesChange) = rememberPreference(AlbumsFromLikedSongsKey, defaultValue = false)
     val (proxyOn) = rememberPreference(ProxyEnabledKey, defaultValue = false)
     val (proxyAddress) = rememberPreference(ProxyUrlKey, defaultValue = "")
-    // the launch check's notification reads its own switch, so it follows this one too
-    val setNoticeHidden = { hidden: Boolean ->
-        onNoticeHidden(hidden)
-        saveUpdateNotificationsSetting(context, !hidden)
-    }
     return listOf(
         languageItem(),
-        switchItem(
-            key = "Disable App Updates notice",
-            title = stringResource(R.string.settings_updates_notice),
-            description = stringResource(R.string.settings_updates_notice_desc),
-            icon = painterResource(R.drawable.update),
-            checked = noticeHidden,
-            onCheckedChange = setNoticeHidden,
-        ),
         switchItem(
             key = "Offline mode",
             title = stringResource(R.string.settings_offline_mode),

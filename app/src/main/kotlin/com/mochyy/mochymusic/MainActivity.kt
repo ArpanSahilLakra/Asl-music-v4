@@ -167,10 +167,6 @@ import com.mochyy.mochymusic.constants.SlimNavBarHeight
 import com.mochyy.mochymusic.constants.SlimNavBarKey
 import com.mochyy.mochymusic.constants.StopMusicOnTaskClearKey
 
-import com.mochyy.mochymusic.core.updater.getAutoUpdateCheckSetting
-import com.mochyy.mochymusic.core.updater.isNewerVersion
-import com.mochyy.mochymusic.core.updater.saveUpdateAvailableState
-import com.mochyy.mochymusic.core.updater.getUpdateNotificationsSetting
 import android.util.Log
 import androidx.compose.ui.platform.LocalContext
 import com.mochyy.mochymusic.ui.component.GlassState
@@ -292,9 +288,6 @@ class MainActivity : ComponentActivity() {
 
     private var playerConnection by mutableStateOf<PlayerConnection?>(null)
 
-    /** Bumped when launched from an update notification; the composition opens the version sheet. */
-    private var openUpdateRequests by mutableStateOf(0)
-
     /** A fresh launch from the launcher plays the launch intro (ui/launch/LaunchIntro.kt). */
     private var introRequested = false
 
@@ -382,10 +375,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        if (intent.action == com.mochyy.mochymusic.ui.screens.update.ActionOpenUpdate) {
-            openUpdateRequests++
-            return
-        }
         if (::navController.isInitialized) {
             handleDeepLinkIntent(intent, navController)
         } else {
@@ -398,6 +387,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen().handOffToLaunchIntro { introPlays }
         super.onCreate(savedInstanceState)
+        com.mochyy.mochymusic.ai.configureAppCheck(this, intent)
         // a tv that opens the phone app from an old shortcut gets the big-screen one instead
         if (savedInstanceState == null && intent?.action == Intent.ACTION_MAIN && isTelevision()) {
             startActivity(Intent(this, com.mochyy.mochymusic.ui.tv.TvActivity::class.java))
@@ -415,10 +405,6 @@ class MainActivity : ComponentActivity() {
                 com.mochyy.mochymusic.ui.component.TopToaster.show(note, iconRes = R.drawable.backup, durationMs = 5000L)
             }
         }
-        if (savedInstanceState == null && intent?.action == com.mochyy.mochymusic.ui.screens.update.ActionOpenUpdate) {
-            openUpdateRequests++
-        }
-
         window.decorView.layoutDirection = View.LAYOUT_DIRECTION_LTR
         WindowCompat.setDecorFitsSystemWindows(window, false)
         systemScaleObserver = com.mochyy.mochymusic.ui.utils.AppMotion.followSystemScale(this)
@@ -468,25 +454,6 @@ class MainActivity : ComponentActivity() {
         val enableDynamicTheme by rememberPreference(DynamicThemeKey, defaultValue = true)
         val enableHighRefreshRate by rememberPreference(EnableHighRefreshRateKey, defaultValue = true)
         val context = LocalContext.current
-
-        LaunchedEffect(Unit) {
-            if (getAutoUpdateCheckSetting(context)) {
-
-                delay(2000L)
-                // Same cached lookup the version sheet and home prompt use (this app's own
-                // releases - the old checker here queried another project's repo). Launch-time
-                // only: nothing about updates runs in the background.
-                val release = com.mochyy.mochymusic.core.updater.getLatestRelease().getOrNull()
-                val isAvailable = release != null &&
-                    com.mochyy.mochymusic.core.updater.isNewerThanInstalled(release.version)
-                saveUpdateAvailableState(context, isAvailable)
-
-                if (release != null && isAvailable && getUpdateNotificationsSetting(context)) {
-                    // At most three reminders per release (now, +2 weeks, +3 months).
-                    com.mochyy.mochymusic.ui.screens.update.maybeNotifyUpdate(context, release)
-                }
-            }
-        }
 
         // "Keep screen on" (the player's menu, or a chevron button): the phone doesn't sleep while
         // Mochy is on screen. A window flag only holds while the app is in front, which is the point.
@@ -934,12 +901,6 @@ class MainActivity : ComponentActivity() {
                             com.mochyy.mochymusic.ui.component.LocalZoomOutOverlayState.current,
                         ),
                     ) {
-                    com.mochyy.mochymusic.ui.screens.update.UpdateNotificationOpener(
-                        requests = openUpdateRequests,
-                        onOpenDevSpace = { personIndex ->
-                            navController.navigate("developer_space?person=$personIndex")
-                        },
-                    )
                         SetupWizardContainer(
                             isVisible = !setupCompleted || !onboardedHere || forceShowSetup,
                             onSetupCompleted = { username, uri ->
@@ -1312,8 +1273,6 @@ class MainActivity : ComponentActivity() {
                     // "share song" from any menu opens here, over the app and the player
                     com.mochyy.mochymusic.ui.player.share.song.SongShareHost()
 
-                    HomeUpdatePrompt(currentRoute = currentRoute)
-
                     sharedSong?.let { song ->
                         playerConnection?.let {
                             Dialog(
@@ -1656,39 +1615,6 @@ private object AppContentNeverObscured : androidx.compose.runtime.State<Boolean>
 }
 
 val LocalHideAppChrome = staticCompositionLocalOf { mutableStateOf(false) }
-
-private const val UpdateSnoozeWindowMillis = 24L * 60L * 60L * 1000L
-
-@Composable
-private fun HomeUpdatePrompt(currentRoute: String?) {
-    if (currentRoute != Screens.Home.route) return
-    val (noticeHidden) = rememberPreference(com.mochyy.mochymusic.constants.HideUpdateNoticeKey, defaultValue = false)
-    if (noticeHidden) return
-
-    val updateState by com.mochyy.mochymusic.ui.screens.update.rememberUpdateState()
-    val (snoozedAt, setSnoozedAt) = rememberPreference(
-        com.mochyy.mochymusic.constants.UpdatePromptSnoozedAtKey,
-        defaultValue = 0L,
-    )
-    val (userName) = rememberPreference(com.mochyy.mochymusic.constants.UsernameKey, "")
-
-    var dismissed by rememberSaveable { mutableStateOf(false) }
-
-    val release = (updateState as? com.mochyy.mochymusic.core.updater.UpdateState.Available)?.release
-    val snoozeExpired = System.currentTimeMillis() - snoozedAt > UpdateSnoozeWindowMillis
-
-    if (release != null && snoozeExpired && !dismissed) {
-        com.mochyy.mochymusic.ui.screens.update.UpdatePromptSheet(
-            release = release,
-            userName = userName,
-            onSnooze = {
-                setSnoozedAt(System.currentTimeMillis())
-                dismissed = true
-            },
-            onDismiss = { dismissed = true },
-        )
-    }
-}
 val LocalPlayerAwareWindowInsets = staticCompositionLocalOf<WindowInsets> { error("No WindowInsets provided") }
 val LocalDownloadUtil = staticCompositionLocalOf<DownloadUtil> { error("No DownloadUtil provided") }
 val LocalSyncUtils = staticCompositionLocalOf<SyncUtils> { error("No SyncUtils provided") }

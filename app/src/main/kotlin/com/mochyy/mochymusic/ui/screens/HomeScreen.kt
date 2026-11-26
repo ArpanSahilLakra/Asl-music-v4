@@ -1403,6 +1403,14 @@ fun HomeScreen(
                     }
                 }
 
+                if (!launchHold) {
+                    item(key = "asl_ai_studio_shelf", contentType = "ai_studio") {
+                        com.mochyy.mochymusic.ui.screens.ai.AiStudioHomeShelf(
+                            navController = navController,
+                        )
+                    }
+                }
+
                 // nothing but bones while the launch intro plays; the rows reveal once it lands
                 if (!launchHold) homeSections.forEach { section ->
                     when (section) {

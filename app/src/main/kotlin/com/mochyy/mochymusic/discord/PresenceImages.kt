@@ -2,8 +2,8 @@
 
 package com.mochyy.mochymusic.discord
 
-import com.mochyy.mochymusic.core.updater.GithubOwner
-import com.mochyy.mochymusic.core.updater.GithubRepo
+import com.mochyy.mochymusic.constants.GithubOwner
+import com.mochyy.mochymusic.constants.GithubRepo
 import com.mochyy.mochymusic.ui.utils.resize
 import kotlin.math.roundToInt
 
